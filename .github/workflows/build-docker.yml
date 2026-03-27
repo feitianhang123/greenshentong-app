@@ -1,0 +1,33 @@
+name: 绿申通 Android APK Docker构建
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build-android:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: 检出代码
+      uses: actions/checkout@v4
+    
+    - name: 使用Buildozer Docker镜像构建
+      run: |
+        # 使用官方Buildozer Docker镜像，包含完整的Android工具链
+        docker run --rm \
+          -v "$PWD":/home/user/hostcwd \
+          -v "$PWD/green-food-app":/home/user/app \
+          -w /home/user/app \
+          buildozer/buildozer \
+          buildozer android debug
+    
+    - name: 上传APK产物
+      uses: actions/upload-artifact@v4
+      with:
+        name: greenshentong-apk
+        path: green-food-app/bin/*.apk
