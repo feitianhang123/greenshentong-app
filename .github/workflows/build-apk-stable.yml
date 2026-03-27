@@ -1,5 +1,8 @@
 name: 绿申通 Android APK 稳定构建
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 on:
   push:
     branches: [ main, master ]
