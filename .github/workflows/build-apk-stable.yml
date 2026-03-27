@@ -23,8 +23,8 @@ jobs:
     - name: 升级pip
       run: pip install --upgrade pip
     
-    - name: 安装Buildozer（使用国内镜像）
-      run: pip install buildozer -i https://pypi.tuna.tsinghua.edu.cn/simple/
+    - name: 安装Buildozer和Cython（使用国内镜像）
+      run: pip install buildozer cython -i https://pypi.tuna.tsinghua.edu.cn/simple/
     
     - name: 安装项目依赖
       run: pip install -r green-food-app/requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple/
