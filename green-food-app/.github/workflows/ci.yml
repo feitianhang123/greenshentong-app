@@ -1,0 +1,82 @@
+name: 绿申通 Android 自动构建
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:  # 允许手动触发
+
+jobs:
+  build-android:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: 检出代码
+      uses: actions/checkout@v4
+    
+    - name: 设置Python环境
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+    
+    - name: 安装Buildozer
+      run: |
+        pip install buildozer
+        pip install -r requirements.txt
+    
+    - name: 初始化Buildozer
+      run: |
+        buildozer init
+        # 更新配置使用我们的设置
+        sed -i "s/^title = .*/title = 绿申通/" buildozer.spec
+        sed -i "s/^package.name = .*/package.name = greenshentong/" buildozer.spec
+        sed -i "s|^icon.filename = .*|icon.filename = %(source.dir)s/assets/icon.png|" buildozer.spec
+    
+    - name: 构建APK
+      run: |
+        buildozer -v android debug
+    
+    - name: 上传APK产物
+      uses: actions/upload-artifact@v3
+      with:
+        name: greenshentong-apk
+        path: bin/*.apk
+        retention-days: 7
+    
+    - name: 创建发布版本
+      if: github.event_name == 'push'
+      uses: softprops/action-gh-release@v1
+      with:
+        files: bin/*.apk
+        body: |
+          绿申通 Android APK 自动构建
+          
+          构建信息:
+          - 分支: ${{ github.ref }}
+          - 提交: ${{ github.sha }}
+          - 时间: ${{ github.event.head_commit.timestamp }}
+    
+    - name: 发送成功通知
+      if: success()
+      uses: actions/github-script@v6
+      with:
+        script: |
+          github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: '✅ 绿申通APK构建成功！[下载APK](https://github.com/${{ github.repository }}/releases/latest)'
+          })
+    
+    - name: 发送失败通知
+      if: failure()
+      uses: actions/github-script@v6
+      with:
+        script: |
+          github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: '❌ 绿申通APK构建失败，请检查日志。'
+          })
