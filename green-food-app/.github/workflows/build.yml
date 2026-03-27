@@ -37,7 +37,7 @@ jobs:
         docker run --rm -v "$(pwd)/bin:/app/bin" greenshentong-builder buildozer android debug
     
     - name: 上传APK产物
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: greenshentong-apk
         path: bin/*.apk
