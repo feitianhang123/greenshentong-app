@@ -4,11 +4,7 @@ env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 on:
-  push:
-    branches: [ main, master ]
-  pull_request:
-    branches: [ main, master ]
-  workflow_dispatch:
+  workflow_dispatch:  # 仅手动触发，禁用自动触发
 
 jobs:
   build-android:
